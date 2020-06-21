@@ -1,2 +1,3 @@
-# SnakeGame
-Yes, it's a just snake game
+# SnowFlakes
+
+Yes, it's just snowflakes :)
