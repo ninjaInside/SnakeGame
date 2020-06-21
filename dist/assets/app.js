@@ -95,122 +95,198 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _modules_GeneratorParticle__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/GeneratorParticle */ "./modules/GeneratorParticle.js");
+/* harmony import */ var _components_SnakeGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/SnakeGenerator */ "./components/SnakeGenerator.js");
 
 
-class SnowFlakesApp {
-  constructor() {
-    this.renderCycle = null;
-    this.renderFramerate = 75;
+class SnakeGame {
+  constructor(fColor, sColor) {
     this.canvas = document.querySelector('.canvas');
     this.ctx = this.canvas.getContext('2d');
-    this.generatorParticle = new _modules_GeneratorParticle__WEBPACK_IMPORTED_MODULE_0__["default"](this.ctx);
+    this.fieldColor = typeof fColor === 'string' ? fColor : '#000';
+    this.fieldWidth = 500;
+    this.fieldHeight = 500;
+    this.renderCycle = null;
+    this.framerate = 100;
+    this.snakeGenerator = new _components_SnakeGenerator__WEBPACK_IMPORTED_MODULE_0__["default"](this.ctx, sColor);
   }
 
   render() {
     this.renderCycle = setInterval(() => {
-      this.ctx.fillStyle = 'black';
-      this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-      this.generatorParticle.generation();
-    }, this.renderFramerate);
+      this.ctx.fillStyle = this.fieldColor;
+      this.ctx.fillRect(0, 0, this.fieldWidth, this.fieldHeight);
+      this.snakeGenerator.render();
+    }, this.framerate);
   }
 
-  renderStop() {
-    clearInterval(this.renderCycle);
-  }
+  renderStop() {}
 
   init() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    this.canvas.width = this.fieldWidth;
+    this.canvas.height = this.fieldHeight;
     this.render();
   }
 
 }
 
-let snowFlakes = new SnowFlakesApp();
-snowFlakes.init();
+let snake = new SnakeGame('#000', 'green');
+snake.init();
 
 /***/ }),
 
-/***/ "./modules/GeneratorParticle.js":
+/***/ "./components/EatGenerator.js":
+/*!************************************!*\
+  !*** ./components/EatGenerator.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EatUnit__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EatUnit */ "./components/EatUnit.js");
+/* harmony import */ var _modules_randomPos__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../modules/randomPos */ "./modules/randomPos.js");
+
+
+
+class EatGenerator {
+  constructor(ctx) {
+    this.eatUnit = new _EatUnit__WEBPACK_IMPORTED_MODULE_0__["default"](Object(_modules_randomPos__WEBPACK_IMPORTED_MODULE_1__["default"])(1000), Object(_modules_randomPos__WEBPACK_IMPORTED_MODULE_1__["default"])(1000));
+    this.ctx = ctx;
+  }
+
+  render(isRerender) {
+    this.ctx.fillStyle = 1;
+
+    if (isRerender) {
+      this.eatUnit.xPos = Object(_modules_randomPos__WEBPACK_IMPORTED_MODULE_1__["default"])(500);
+      this.eatUnit.yPos = Object(_modules_randomPos__WEBPACK_IMPORTED_MODULE_1__["default"])(500);
+    }
+
+    this.ctx.fillStyle = this.eatUnit.color;
+    this.ctx.fillRect(this.eatUnit.xPos, this.eatUnit.yPos, this.eatUnit.width, this.eatUnit.height);
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (EatGenerator);
+
+/***/ }),
+
+/***/ "./components/EatUnit.js":
+/*!*******************************!*\
+  !*** ./components/EatUnit.js ***!
+  \*******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+class EatUnit {
+  constructor(xPos, yPos, width, height, color) {
+    this.xPos = xPos || 0;
+    this.yPos = yPos || 0;
+    this.width = width || 10;
+    this.height = height || 10;
+    this.color = color || 'red';
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (EatUnit);
+
+/***/ }),
+
+/***/ "./components/SnakeGenerator.js":
 /*!**************************************!*\
-  !*** ./modules/GeneratorParticle.js ***!
+  !*** ./components/SnakeGenerator.js ***!
   \**************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Particle__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Particle */ "./modules/Particle.js");
+/* harmony import */ var _SnakeUnit__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SnakeUnit */ "./components/SnakeUnit.js");
+/* harmony import */ var _EatGenerator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EatGenerator */ "./components/EatGenerator.js");
 
 
-class GeneratorParticle {
-  constructor(ctx) {
-    this.particleList = [];
+
+class SnakeGenerator {
+  constructor(ctx, unitColor) {
     this.ctx = ctx;
-    this.s = 10;
-    this.toggleRock = false;
-  }
-
-  generation() {
-    if (this.particleList.length < 100) {
-      this.particleList.push(new _Particle__WEBPACK_IMPORTED_MODULE_0__["default"](this.randomNumber(0, document.documentElement.clientWidth), this.randomNumber(0, window.innerHeight / 3), 'white'));
-    }
-
-    this.particleList.map(item => {
-      this.ctx.fillStyle = item.color;
-      this.ctx.fillRect(item.x, item.y, item.width, item.height);
-      item.y += this.randomNumber(5, 10);
-      if (item.y >= window.innerHeight) item.y = 0;
-
-      if (item.x >= window.innerWidth || item.x <= 0) {
-        item.y = 0;
-        item.x = this.randomNumber(0, document.documentElement.clientWidth);
-      }
-
-      if (!this.toggleRock) {
-        item.x += 1;
-        if (item.x >= item.maxXpos) this.toggleRock = true;
-      } else if (this.toggleRock) {
-        item.x -= 1;
-        if (item.x <= item.minXpos) this.toggleRock = false;
-      }
+    this.unitColor = unitColor;
+    this.snakeChain = [new _SnakeUnit__WEBPACK_IMPORTED_MODULE_0__["default"](0, 0, 10, 10, this.unitColor), new _SnakeUnit__WEBPACK_IMPORTED_MODULE_0__["default"](10, 0, 10, 10, this.unitColor)];
+    this.moveDirection = 'ArrowRight';
+    this.maxWidth = 500;
+    this.maxHeight = 500;
+    this.eatGenerator = new _EatGenerator__WEBPACK_IMPORTED_MODULE_1__["default"](this.ctx);
+    document.addEventListener('keydown', e => {
+      if (!e.key.includes('Arrow')) return;
+      this.moveDirection = e.key;
     });
   }
 
-  randomNumber(min, max) {
-    return Math.floor(Math.random() * max) + min;
+  render() {
+    let eatUnit = this.eatGenerator.render();
+    this.snakeChain.map(unit => {
+      this.ctx.fillStyle = unit.color;
+      this.ctx.fillRect(unit.xPos, unit.yPos, unit.width, unit.height);
+      let moveUnit = this.snakeChain.shift();
+      if (this.moveDirection === 'ArrowLeft') moveUnit.xPos -= 10;
+      if (this.moveDirection === 'ArrowRight') moveUnit.xPos += 10;
+      if (this.moveDirection === 'ArrowUp') moveUnit.yPos -= 10;
+      if (this.moveDirection === 'ArrowDown') moveUnit.yPos += 10;
+      if (unit.xPos > this.maxWidth) unit.xPos = 0;else if (unit.xPos < 0) unit.xPos = this.maxWidth - 1;
+      if (unit.yPos > this.maxHeight) unit.yPos = 0;else if (unit.yPos < 0) unit.yPos = this.maxHeight - 1;
+      this.snakeChain.push(moveUnit); // for (let unit of this.snakeChain.slice(0, this.snakeChain.length - 1)) {
+      // 	console.log(unit)
+      // }  
+    });
   }
 
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (GeneratorParticle);
+/* harmony default export */ __webpack_exports__["default"] = (SnakeGenerator);
 
 /***/ }),
 
-/***/ "./modules/Particle.js":
-/*!*****************************!*\
-  !*** ./modules/Particle.js ***!
-  \*****************************/
+/***/ "./components/SnakeUnit.js":
+/*!*********************************!*\
+  !*** ./components/SnakeUnit.js ***!
+  \*********************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-class Particle {
-  constructor(x, y, color) {
-    this.x = x;
-    this.y = y;
-    this.width = 3;
-    this.height = 3;
-    this.maxXpos = this.x + 12;
-    this.minXpos = this.x;
+class SnakeUnit {
+  constructor(xPos, yPos, width, height, color) {
+    this.xPos = xPos;
+    this.yPos = yPos;
+    this.width = width;
+    this.height = height;
     this.color = color;
   }
 
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (Particle);
+/* harmony default export */ __webpack_exports__["default"] = (SnakeUnit);
+
+/***/ }),
+
+/***/ "./modules/randomPos.js":
+/*!******************************!*\
+  !*** ./modules/randomPos.js ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+function randomNumber(max, min) {
+  console.log(Math.floor(Math.random() * 500 / 10) * 10);
+  return Math.floor(Math.random() * 500 / 10) * 10;
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (randomNumber);
 
 /***/ })
 
