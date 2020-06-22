@@ -19,6 +19,8 @@ class EatGenerator {
 
 		this.ctx.fillStyle = this.eatUnit.color 
 		this.ctx.fillRect(this.eatUnit.xPos, this.eatUnit.yPos, this.eatUnit.width, this.eatUnit.height)
+
+		return this.eatUnit
 	}
 }
 

@@ -163,6 +163,7 @@ class EatGenerator {
 
     this.ctx.fillStyle = this.eatUnit.color;
     this.ctx.fillRect(this.eatUnit.xPos, this.eatUnit.yPos, this.eatUnit.width, this.eatUnit.height);
+    return this.eatUnit;
   }
 
 }
@@ -218,6 +219,7 @@ class SnakeGenerator {
     this.maxWidth = 500;
     this.maxHeight = 500;
     this.eatGenerator = new _EatGenerator__WEBPACK_IMPORTED_MODULE_1__["default"](this.ctx);
+    this.eatUnit = null;
     document.addEventListener('keydown', e => {
       if (!e.key.includes('Arrow')) return;
       this.moveDirection = e.key;
@@ -225,21 +227,34 @@ class SnakeGenerator {
   }
 
   render() {
-    let eatUnit = this.eatGenerator.render();
+    this.eatUnit = this.eatGenerator.render();
     this.snakeChain.map(unit => {
       this.ctx.fillStyle = unit.color;
       this.ctx.fillRect(unit.xPos, unit.yPos, unit.width, unit.height);
-      let moveUnit = this.snakeChain.shift();
-      if (this.moveDirection === 'ArrowLeft') moveUnit.xPos -= 10;
-      if (this.moveDirection === 'ArrowRight') moveUnit.xPos += 10;
-      if (this.moveDirection === 'ArrowUp') moveUnit.yPos -= 10;
-      if (this.moveDirection === 'ArrowDown') moveUnit.yPos += 10;
       if (unit.xPos > this.maxWidth) unit.xPos = 0;else if (unit.xPos < 0) unit.xPos = this.maxWidth - 1;
       if (unit.yPos > this.maxHeight) unit.yPos = 0;else if (unit.yPos < 0) unit.yPos = this.maxHeight - 1;
-      this.snakeChain.push(moveUnit); // for (let unit of this.snakeChain.slice(0, this.snakeChain.length - 1)) {
-      // 	console.log(unit)
-      // }  
     });
+    let moveUnit = this.snakeChain[0];
+
+    if (moveUnit.xPos === this.eatUnit.xPos && moveUnit.yPos === this.eatUnit.yPos) {
+      this.eatUnit = this.eatGenerator.render(true);
+    } else {
+      this.snakeChain.pop();
+    }
+
+    if (this.moveDirection === 'ArrowLeft') moveUnit.xPos -= 10;
+    if (this.moveDirection === 'ArrowRight') moveUnit.xPos += 10;
+    if (this.moveDirection === 'ArrowUp') moveUnit.yPos -= 10;
+    if (this.moveDirection === 'ArrowDown') moveUnit.yPos += 10;
+    let s = {
+      xPos: moveUnit.xPos,
+      yPos: moveUnit.yPos,
+      width: moveUnit.width,
+      height: moveUnit.height,
+      color: moveUnit.color
+    };
+    this.snakeChain.unshift(s);
+    console.log(this.snakeChain.length);
   }
 
 }
